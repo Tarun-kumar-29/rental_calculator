@@ -1,0 +1,13 @@
+{% extends "calculator/base.html" %}
+
+{% block content %}
+<div class="mx-auto w-25">
+<h2 class="py-4 accentColor">Logged Out</h2>
+  <p>Come back soon!</p>
+
+  <a class="btn btnTheme" href="{% url 'users:login' %}" role="button">Log in</a>
+  
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,137 @@
+{% extends "calculator/base.html" %}
+{% load tz %}
+{% load static %}
+
+{% block page_header %}
+<div>
+  <h1 class="pageTitle text-center py-4">Reports</h1>
+</div>
+
+{% endblock page_header %}
+
+{% block content %}
+<div class="">
+  <div class="row align-items-start text-dark rounded py-2 my-3 bg-secondary bg-opacity-10">
+    <div class="col-1">
+    </div>
+    <div class="col-3">
+      Report Name
+    </div>
+    <div class="col-3">
+      Address
+    </div>
+    <div class="col-1">
+      Created
+    </div>
+    <div class="col-1">
+      Updated
+    </div>
+    <div class="col-1">
+      Quality
+    </div>
+    <div class="col-1">
+    </div>
+    <div class="col-1">
+    </div>
+  </div>
+</div>
+
+<div>
+{% if report_object_list %}
+  <ul class="reportList">
+    {% for report in  report_object_list %}
+    <li>
+      <div class="reportRow row align-items-start my-2 bg-white border rounded">
+        <div class="col-1 reportImageContainer align-self-center">
+          <a href="{% url 'calculator:report' report.id %}">
+            {% if report.prop_photo %}
+              <img src="{{ report.prop_photo.url }}" class="img-fluid">
+            {% endif %}
+          </a>
+        </div>
+        <div class="col-3 align-self-center reportTitle">
+          <a  href="{% url 'calculator:report' report.id %}">
+            {{ report.report_title }}
+          </a>
+        </div>
+        <div class="col-3 text-muted align-self-center">
+          {% if report.prop_address %}
+            <p class="card-text">{{ report.prop_address }}, {{ report.prop_city }}, {{ report.prop_state }} {{ report.prop_zip }}</p>
+          {% endif %}
+        </div>
+        <div class="col-1 text-muted align-self-center">
+          {% timezone "America/New_York" %}
+            {{ report.created_at|date:"M j 'y" }}
+          {% endtimezone %}
+        </div>
+        <div class="col-1 text-muted align-self-center">
+          {% timezone "America/New_York" %}
+            {{ report.updated_at|date:"M j 'y" }}
+          {% endtimezone %}
+        </div>
+        <div class="col-1 text-muted align-self-center">
+          {% if report.quality_g %}
+            &#128077
+          {% elif report.quality_b %}
+            &#128078
+          {% elif report.quality_a %}
+            &#129335
+          {% endif %}
+        </div>
+        <div class="col-1 align-self-center">
+          <a class="btn btn-secondary" href="{% url 'calculator:edit-rental-prop-calc' report.pk %}">
+            Edit
+          </a>
+        </div>
+        <div class="col-1 editDeleteButtons align-self-center">
+          <a class="modalLink btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+            X
+          </a>
+        </div>
+        {% include "calculator/modal.html" %}
+      </div> 
+    </li>
+    {% endfor %}
+  </ul>
+
+  {% if is_paginated %}
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">PREV</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link">PREV</a>
+          </li>
+        {% endif %}
+        {% with ''|center:page_obj.paginator.num_pages as range %}
+          {% for _ in range %}
+            {% if page_obj.number == forloop.counter %}
+              <li class="page-item page-item-num active" id="paginator_{{ forloop.counter }}"><a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+            {% else %}
+              <li class="page-item page-item-num" id="paginator_{{ forloop.counter }}"><a class="page-link" href="?page={{ forloop.counter }}">{{ forloop.counter }}</a></li>
+            {% endif %}
+          {% endfor %}
+        {% endwith %}
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">NEXT</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled">
+            <a class="page-link">NEXT</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+{% endif %}
+
+  {% else %}
+  <div class="text-center">No reports here yet</div>
+  {% endif %}
+  
+</div>
+
+{% endblock content %}

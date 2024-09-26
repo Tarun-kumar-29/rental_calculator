@@ -1,0 +1,354 @@
+{% extends "calculator/base.html" %} 
+{% load tz %} 
+{% load humanize %} 
+{% load static %} 
+{% load widget_tweaks %}
+
+
+{% block page_header %}
+<div>
+  <h1 class="pageTitle text-center py-4">Settings</h1>
+</div>
+
+{% endblock page_header %} {% block content %}
+<div class="row mx-auto border-top mb-5">
+    <div class="col-4">
+        <div class="settingsList bg-light list-group rounded-0 border-0 sticky-top justify-content-center mt-5 fs-5" id="scroll-list">
+            <a href="#list-item-1" class="w-75 bg-light list-group-item list-group-item-action text-start border-0 rounded">Calculator</a>
+            <a href="#list-item-2" class="w-75 bg-light list-group-item list-group-item-action text-start border-0 rounded">Investment Quality</a>
+            {% if user.is_superuser %}
+                <a href="#list-item-3" class="w-75 bg-light list-group-item list-group-item-action text-start border-0 rounded">Bot</a>
+            {% endif %}
+            <a href="#list-item-4" class="w-75 bg-light list-group-item list-group-item-action text-start border-0 rounded">Other</a>
+        </div>
+    </div>
+
+  <div class="col-8 border-start ps-4">
+    <form
+      class="settingsForm needs-validation"
+      method="post"
+      enctype="multipart/form-data"
+      novalidate
+    >
+      {% csrf_token %}
+    <!-- Calculator Settings -->
+
+      <h3 class="sectionHeading pt-5" id="list-item-1">Calculator Settings</h3>
+      <small class="text-muted">*These settings will be used to pre-fill rental calculator fields
+      and be used as the default values for running automatic rental reports with the bot.
+      </small>
+
+
+      <h5 class="pt-4">Purchase Info</h5>
+
+      
+      <div class="row pt-3">
+        <div class="col-4">
+          <label class="form-label" for="id_down_payment"
+            >Down Payment</label
+          >
+          {{ form.down_payment|add_class:"form-control" }}
+        </div>
+      </div>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-labe" for="id_loan_int_rate"
+                    >Interest Rate
+                </label>
+                {{ form.loan_int_rate|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4">
+                <label class="form-label" for="id_loan_term"
+                    >Loan Term
+                </label>
+                {{ form.loan_term|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <h5 class="pt-3 pb-3">Expenses</h5>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_repairs_maint"
+                    >Repairs/Maint.
+                </label>
+                {{ form.repairs_maint|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_vacancy"
+                    >Vacancy
+                </label>
+                {{ form.vacancy|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_cap_expenditures"
+                    >Capital Expenditures
+                </label>
+                {{ form.cap_expenditures|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_mgmt_fees"
+                    >Management Fees
+                </label>
+                {{ form.mgmt_fees|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <h3 class="sectionHeading pt-5" id="list-item-2">Investment Quality Settings</h3>
+        <small class="text-muted">*These settings will be used to determine the
+        quality of the investment you are looking for. Results will be categorized
+        as good(&#128077), average(&#129335), or bad(&#128078) on reports.<br><br>
+        "Bad" categorizations will be made for all 
+        reports that return a number equal to or lower than what you enter under "Bad Investment".<br>
+        "Good" categorizations will be made for all 
+        reports that return a number equal to or greater than what you enter under "Good Investment".<br><br>
+        *Cash on Cash ROI and Cashflow criteria may be used individually to 
+        determine investment quailty. If both criteria are specified, a report 
+        will need to meet both good or bad criteria categories to be considered 
+        for that designation. Otherwise, if only one criteria is met, the investment
+        is considered average.
+        </small>
+
+        <h5 class="pt-3 pb-3">Cash on Cash ROI</h5>
+        <small class="text-muted">*Leave a spread between your designations so that 
+        "average" designations may be made
+        </small><br><br>
+
+        <div class="row">
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_coc_roi_bottom"
+                    >Bad Investment
+                </label>
+                {{ form.coc_roi_bottom|add_class:"form-control" }}
+            </div>
+            <div class="col-4 percentage">
+                <label class="form-label" for="id_coc_roi_top"
+                    >Good Investment
+                </label>
+                {{ form.coc_roi_top|add_class:"form-control" }}
+            </div>
+        </div>
+
+        <h5 class="pt-3 pb-3">Cashflow</h5>
+        <small class="text-muted">*Leave a spread between your designations so that 
+        "average" designations may be made
+        </small><br><br>
+
+        <div class="row">
+            <div class="col-4 currency">
+                <label class="form-label" for="id_cashflow_bottom"
+                    >Bad Investment
+                </label>
+                {{ form.cashflow_bottom|add_class:"form-control" }}
+            </div>
+            <div class="col-4 currency">
+                <label class="form-label" for="id_cashflow_top"
+                    >Good Investment
+                </label>
+                {{ form.cashflow_top|add_class:"form-control" }}
+            </div>
+        </div>
+
+        {% if user.is_superuser %}
+
+            <h3 class="sectionHeading pt-5" id="list-item-3">Bot Settings</h3>
+            <small class="text-muted">*These settings will be used to determine the 
+            search criteria for the bot so that it can get relevant property data for you. 
+            Make sure to read the help sections so you enter the right data for the bot to consume.
+            </small>
+
+            <h5 class="pt-3 pb-3">Search area</h5>
+
+
+            <div class="toggleCityZip">
+                <div class="btn-group pb-2" role="group">
+                    <input type="radio" class="btn-check" name="btnradio" id="cityradio1" autocomplete="off" checked>
+                    <label class="btn btn-outline-primary" for="cityradio1">City</label>
+
+                    <input type="radio" class="btn-check" name="btnradio" id="zipradio2" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="zipradio2">Zipcode</label>
+                </div>
+                <div class="city">
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label" for="id_city"
+                                >City Name
+                            </label>
+                            {{ form.city|add_class:"form-control" }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label" for="id_state"
+                                >State
+                            </label>
+                            {{ form.state|add_class:"form-control" }}
+                        </div>
+                    </div>
+
+                    
+
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label" for="id_city_code"
+                                >City Code
+                            </label>
+                            {{ form.city_code|add_class:"form-control" }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            {{ form.minor_civil_div }}
+                            <label for="id_minor_civil_div" id="minor_civil_div"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="zipcode">
+                    <div class="row">
+                        <div class="col-4">
+                            <label class="form-label" for="id_zipcode"
+                                >Zipcode
+                            </label>
+                            {{ form.zipcode|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            
+
+            <h5 class=" pb-3">Search Filters</h5>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-label" for="id_min_price"
+                        >Min Price
+                    </label>
+                    {{ form.min_price|add_class:"form-control" }}
+                </div>
+                <div class="col-4">
+                    <label class="form-label" for="id_max_price"
+                        >Max Price
+                    </label>
+                    {{ form.max_price|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <div class="row">
+                <label class="form-label" for="id_prop_type"
+                    >Property Type:
+                </label>
+                {% for checkbox in form.prop_type %}
+                    <div class="col-md-12 m2m">
+                        <label>{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-label" for="id_min_beds"
+                        >Min Beds
+                    </label>
+                    {{ form.min_beds|add_class:"form-control" }}
+                </div>
+                <div class="col-4">
+                    <label class="form-label" for="id_max_beds"
+                        >Max Beds
+                    </label>
+                    {{ form.max_beds|add_class:"form-control" }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <label class="form-label" for="id_min_baths"
+                        >Baths
+                    </label>
+                    {{ form.min_baths|add_class:"form-control" }}
+                </div>
+            </div>
+
+            {% if item.user.is_superuser %}
+                <h5 class="pt-3 pb-3">Auto Search Frequency</h5>
+
+                <div class="row">
+                    <div class="col-4">
+                        <label class="form-label" for="id_bot_frequency"
+                            >Frequency
+                        </label>
+                        {{ form.bot_frequency|add_class:"form-control" }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">*Make sure any updated settings are saved before running the bot!
+                        </small><br>
+                        {% comment %} <a class="btn btn-primary formattedButton mt-3" href="{% url 'bot:run-bot' %}" role="button">Run Bot</a> {% endcomment %}
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="row">
+                    <div class="col-12">
+                        <small class="text-muted">*Make sure any updated settings are saved before running the bot!
+                        </small><br>
+                        {% comment %} <a class="btn btn-primary formattedButton mt-3" href="{% url 'bot:run-bot' %}" role="button">Run Bot</a> {% endcomment %}
+                    </div>
+                </div>
+            {% endif %}
+
+        {% endif %}
+
+        <h3 class="sectionHeading pt-5" id="list-item-4">Other Settings</h3>
+
+        <h5 class="pt-4">Blacklist Settings</h5>
+
+      
+        <div class="row">
+            <div class="col">
+                {{ form.blacklist_bool }}
+                <label for="id_blacklist_bool" id="blacklist_bool"></label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <label class="form-label" for="id_addr_blacklist"
+                    >Blacklisted Addresses
+                </label>
+                {{ form.addr_blacklist|add_class:"form-control" }}
+            </div>
+        </div>
+        
+
+        <div class="row">
+            <div class="col">
+            {{ form.user }}
+            </div>
+        </div>
+
+      <div class="settingsButton d-flex justify-content-end pt-5">
+        <button type="submit" name="submit" class="btn text-light my-3">Save Settings</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock content %}
